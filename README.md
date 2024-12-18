@@ -1,41 +1,138 @@
-# Computer Vision with OpenCV
+# Lane Detection using OpenCV
 
-This repository contains Jupyter notebooks demonstrating basic and advanced image processing and computer vision techniques using OpenCV in Python. The notebooks cover a variety of tasks, from basic image manipulation to more complex problems like lane detection.
+This project demonstrates the use of **OpenCV** for lane detection on street images. The goal is to process the image, detect edges using the Canny edge detector, apply a mask to focus on the region of interest, and then extract the lane boundaries.
 
-## Notebooks
+## Requirements
 
-### 1. **processamento_de_imagem_OpenCV**
-This notebook introduces the basic concepts and techniques in image processing using OpenCV. It covers operations like reading, displaying, and manipulating images, as well as applying filters and transformations. It's a great starting point for anyone looking to learn OpenCV.
+This project requires the following libraries:
 
-### 2. **ComputerVision1.ipynb: utilizando o OpenCV para processamento de imagem**
-This notebook demonstrates how to use OpenCV for general image processing tasks. The key concepts explored in this notebook include:
-- Converting images to grayscale.
-- Applying Gaussian blur for noise reduction.
-- Performing edge detection using the Canny algorithm.
+- OpenCV (`cv2`)
+- NumPy (`numpy`)
+- Matplotlib (`matplotlib`)
+- Google Colab's file upload functionality (`google.colab`)
 
-#### Key Code Example:
-```python
-import cv2
+You can install the required libraries using `pip` if they are not already installed:
+
+```bash
+pip install opencv-python numpy matplotlib
+```
+
+## Project Overview
+
+### 1. Import Libraries
+We start by importing necessary libraries for image processing and visualization.
+
+```bash
+import cv2 as cv
+from google.colab import files
+import matplotlib.pyplot as plt
 import numpy as np
+```
 
-# Reading an image
-image = cv2.imread('image.jpg')
+### 2. Upload Image
+You can upload your own image for lane detection using the file upload widget in Google Colab.
 
-# Convert to grayscale
-gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+```bash
+upload = files.upload()
+### 3. Image Preparation
+We load the image, check its type, and print its dimensions.
+```
 
-# Displaying the image
-cv2.imshow('Grayscale Image', gray_image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+```bash
+imagem = (r'lane_detection.jpeg')
+img_cv = cv.imread(imagem)
+print(type(img_cv))
+print('Tamanho da imagem: ', img_cv.shape)
+```
 
-# Applying Gaussian blur
-blurred_image = cv2.GaussianBlur(gray_image, (5, 5), 0)
+###4. Convert Image to RGB
+Next, we convert the image from BGR (default in OpenCV) to RGB for visualization.
 
-# Edge detection using Canny
-edges = cv2.Canny(blurred_image, 100, 200)
+```bash
+img = cv.cvtColor(img_cv, cv.COLOR_BGR2RGB)
+plt.imshow(img)
+```
 
-# Display the result
-cv2.imshow('Edge Detection', edges)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+### 5. Convert Image to Grayscale
+Since edge detection works best with grayscale images, we convert the image to grayscale.
+
+```bash
+img_gray = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
+plt.imshow(img_gray, cmap=plt.cm.gray)
+```
+
+### 6. Canny Edge Detection
+We use the Canny edge detection algorithm to detect edges in the grayscale image.
+
+```bash
+linhas = cv.Canny(img_gray, 100, 200)
+plt.imshow(linhas, cmap='gray')
+plt.show()
+```
+
+### 7. Automatic Threshold for Canny Edge Detection
+A function auto_canny is created to automatically determine the threshold values for Canny edge detection.
+
+```bash
+def auto_canny(image, sigma=0.33):
+    v = np.median(image)
+    lower = int(max(0, (1.0 - sigma) * v))
+    upper = int(min(255, (1.0 + sigma) * v))
+    edged = cv.Canny(image, lower, upper)
+    return edged
+
+img_canny = auto_canny(img)
+plt.imshow(img_canny)
+8. Creating a Mask for Region of Interest
+We define a polygon that isolates the region of interest (the area where the lane is located) and apply it as a mask.
+```
+
+```bash
+mask = np.zeros_like(img_canny)
+h, w = img_canny.shape
+pts = np.array([[50,h],[300,240],[400,240],[650,h]], dtype=np.int32)
+mask_filled = cv.fillPoly(mask, [pts], (255, 255, 255))
+plt.imshow(mask_filled)
+```
+
+### 9. Apply Mask to Edge Image
+We apply the mask to the edge-detected image to focus on the region of interest.
+
+```bash
+masked_image = cv.bitwise_and(img_canny, mask_filled)
+plt.imshow(masked_image)
+```
+
+Image Transformation Techniques
+In addition to lane detection, other image processing techniques like translation, rotation, and flipping are demonstrated.
+
+Translation
+We perform a translation on the image by shifting it in both the X and Y directions.
+
+```bash
+deslocamento = np.float32([[1,0,100],[0,1,100]])
+img_trans = cv.warpAffine(img, deslocamento, (largura, altura))
+plt.imshow(img_trans)
+Rotation
+We rotate the image around its center by a specified angle.
+```
+
+```bash
+rotacao = cv.getRotationMatrix2D(ponto, 30, 1.0)
+img_rot = cv.warpAffine(img, rotacao, (largura, altura))
+plt.imshow(img_rot)
+Flipping
+We flip the image along different axes (X, Y, or both).
+```
+
+```bash
+espelhar = cv.flip(img, -1)
+plt.imshow(espelhar)
+```
+
+## Conclusion
+This project showcases basic image processing techniques using OpenCV, including edge detection, region of interest masking, and image transformations. These techniques are essential for many computer vision tasks such as lane detection in autonomous driving systems.
+
+## License
+This project is open-source and available under the MIT License.
+
