@@ -1,6 +1,10 @@
 # Lane Detection using OpenCV
 
+![image](https://github.com/user-attachments/assets/af443404-6097-4867-a909-48f07f77624a)
+
 This project demonstrates the use of **OpenCV** for lane detection on street images. The goal is to process the image, detect edges using the Canny edge detector, apply a mask to focus on the region of interest, and then extract the lane boundaries.
+
+![image](https://github.com/user-attachments/assets/af2f5ddf-c50d-4ce8-9517-d0f45ed79a1a)
 
 ## Requirements
 
